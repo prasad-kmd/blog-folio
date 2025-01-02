@@ -1,4 +1,4 @@
-fetch("https://api.codetabs.com/v1/proxy?quest=https://api.myip.com")
+fetch("https://api.myip.com") //Add "https://api.codetabs.com/v1/proxy?quest=" if you're getting CORS error
   .then((response) => response.json())
   .then((data) => {
     const ip = data.ip;

@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  const rssUrl =
-    "https://api.codetabs.com/v1/proxy?quest=https://prasad-kmd.blogspot.com/feeds/posts/default?alt=rss"; // Replace with your RSS feed URL
+  const rssUrl = "https://prasad-kmd.blogspot.com/feeds/posts/default?alt=rss"; // Replace with your RSS feed URL
+  //Add "https://api.codetabs.com/v1/proxy?quest=" if you're getting CORS error
   const latestPostsContainer = document.getElementById(
     "latest-posts-pm-blogger"
   );
