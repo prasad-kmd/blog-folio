@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const rssUrl = "https://9to5google.com/feed/"; // Replace with your RSS feed URL
+  const rssUrl = "https://api.codetabs.com/v1/proxy?quest=https://9to5google.com/feed/"; // Replace with your RSS feed URL
   //Add "https://api.codetabs.com/v1/proxy?quest=" if you're getting CORS error
   const blogPostsContainer = document.getElementById("blog-posts-9to5g");
 
