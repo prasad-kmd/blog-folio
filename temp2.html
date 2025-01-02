@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Semantic UI Segment with Background Image</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <style>
+        .ui.segment.background-image.ai-style-change-1 {
+            background-position: 0% 0%;
+            background-image: url('assets/img/weather.svg'); /* Replace with your image path */
+            background-size: auto;
+            width: 50%;
+            padding-bottom: 50%;
+            height: 0;
+            box-sizing: border-box;
+            background-repeat: no-repeat;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui container">
+        <div class="ui segment background-image ai-style-change-1">
+            <h2 class="ui header">My Segment with Background Image</h2>
+            <p>This is some content within the segment.</p>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+</body>
+
+</html>

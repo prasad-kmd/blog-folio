@@ -1,0 +1,58 @@
+/* Base styles for the body */
+html,
+body,
+.ui.header,
+.ui.footer,
+.ui.menu,
+.ui.button,
+.ui.card,
+.ui.message,
+.header,
+.ui.message .header,
+.ui.cards > .card > .content > .header,
+.ui.card > .content > .header,
+.ui.popup > .header,
+.ui.modal > .header,
+h2,
+.content > .header,
+.ui.list .list > .item a.header,
+.ui.list > .item a.header,
+.ui.items > .item > .content > a.header,
+.ui.fluid.input > input {
+  font-family: "Google Sans", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #f9f9f9;
+  margin: 0;
+  padding: 0;
+  cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%23FFF" stroke="%23000" stroke-width="2" d="M5.5 3.21V20.8c0 .45.54.67.85.35l4.86-4.86a.5.5 0 0 1 .35-.15h6.87a.5.5 0 0 0 .35-.85L6.35 2.85a.5.5 0 0 0-.85.35Z"></path></svg>'),
+    auto;
+}
+
+header.ui.menu {
+  margin-bottom: 20px;
+}
+
+footer.ui.segment {
+  text-align: center;
+  margin-top: 20px;
+}
+
+
+.asc4 {
+  .ui.menu& {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+  }
+}
+
+
+.sinhala {
+  font-family: "Noto Serif Sinhala", serif;
+}

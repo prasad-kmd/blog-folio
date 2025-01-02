@@ -1,0 +1,113 @@
+/*
+ * 
+ * This CSS file contains the styles for the Blogger V1 website.
+ * It includes various classes and IDs to style the layout, typography,
+ * and other visual elements of the website.
+ * 
+ * Make sure to link this stylesheet in your HTML file to apply the styles.
+ * 
+ * Author: PrasadM
+ * Created on: 2024.12.20
+ */
+
+#latest-posts .ui.card a {
+  color: #2185d0;
+  text-decoration: none;
+}
+
+#latest-posts .ui.card a:hover {
+  text-decoration: underline;
+}
+.ui.loader {
+  margin: 20px auto;
+}
+.ui.card img {
+  height: 150px;
+  object-fit: cover;
+}
+
+.ui.card .extra.content {
+  font-size: 0.9em;
+  color: #555;
+}
+.sixteen-by-nine {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-top: 51%; /* 16:9 Aspect Ratio (9/16 = 0.5625 or 56.25%) */
+  overflow: hidden;
+}
+.sixteen-by-nine img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures the image covers the entire area */
+}
+.header1 {
+  font-size: 1.2em; /* Set a specific font size */
+  line-height: 1.4em; /* Adjust line height as needed */
+  max-height: 2.8em; /* 2 lines * line-height */
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Limit to 2 lines */
+  line-clamp: 2; /* Standard property for compatibility */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center; /* Center the text */
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+}
+.content .header {
+  text-align: center;
+  --header-font-size: 1.2em; /* Define the variable for header font size */
+  height: calc(3 * var(--header-font-size)); /* 3 times the .header font size */
+  overflow: hidden;
+}
+.content .description {
+  text-align: center;
+  --header-font-size: 2.5em; /* Define the variable for header font size */
+  height: calc(3 * var(--header-font-size)); /* 3 times the .header font size */
+  overflow: hidden;
+}
+.link {
+  cursor: context-menu;
+}
+.ui.segment.asc1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.asc1 {
+  .content& {
+    background-image: url(../img/svg/weather.svg) !important;
+    background-repeat: no-repeat !important;
+  }
+}
+
+.asc2 {
+  .content& {
+    background-image: url(../img/svg/web_address.svg) !important;
+    background-repeat: no-repeat !important;
+  }
+}
+
+.asc3 {
+  .ui.segment& {
+    background-image: url(../img/webp/WEB_LOGO01_PM.webp) !important;
+    background-repeat: no-repeat !important;
+    background-position: right !important;
+    background-size: 90vh !important;
+  }
+}
+
+.ui.header > .image:not(.icon),
+.ui.header > img {
+  display: inline-block;
+  margin-top: 0;
+  width: auto;
+  height: 1.25em;
+  vertical-align: middle;
+}
