@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA;
+            color: #343A40;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .chart-wrapper-sm { max-width: 400px; height: 300px; max-height: 350px; }
+        .chart-wrapper-md { max-width: 600px; height: 350px; max-height: 400px; }
+        .chart-wrapper-lg { max-width: 800px; height: 400px; max-height: 450px; }
+
+        @media (min-width: 768px) {
+            .chart-wrapper-sm { height: 350px; }
+            .chart-wrapper-md { height: 400px; }
+            .chart-wrapper-lg { height: 450px; }
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+        th, td {
+            border: 1px solid #DEE2E6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        th {
+            background-color: #E9ECEF;
+            font-weight: 600;
+            color: #495057;
+        }
+        tbody tr:nth-child(even) {
+            background-color: #F8F9FA;
+        }
+        .nav-sticky {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .content-card {
+            background-color: #FFFFFF;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #E9ECEF;
+        }
+        .section-title {
+            font-size: 2.25rem;
+            font-weight: 700;
+            color: #4A90E2; /* Accent 1 */
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        .card-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4A90E2; /* Accent 1 */
+            margin-bottom: 0.75rem;
+        }
+        .card-subtitle {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #E67E22; /* Accent 2 */
+            margin-bottom: 0.5rem;
+        }
+        .highlight-text {
+            color: #E67E22; /* Accent 2 */
+            font-weight: 600;
+        }
+        .chiplet-diagram div {
+            border: 2px solid #4A90E2;
+            background-color: #E9F2FC;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            text-align: center;
+            font-size: 0.875rem;
+        }
+        .trend-icon {
+            font-size: 3rem;
+            color: #4A90E2;
+            margin-bottom: 0.5rem;
+        }
+        .gemini-response {
+            background-color: #E9F2FC; /* Light blue background for response */
+            border-left: 4px solid #4A90E2;
+            padding: 1rem;
+            border-radius: 0.25rem;
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            color: #343A40;
+            white-space: pre-wrap; /* Preserve whitespace and line breaks */
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <main class="container mx-auto px-4 py-8">
+        <section id="gemini-expert" class="mb-12">
+            <h2 class="section-title">Ask a Semiconductor Expert ✨</h2>
+            <p class="text-center mb-8 max-w-3xl mx-auto text-gray-600">Have a question about microprocessors, microcontrollers, or the mechatronics industry? Ask our AI expert below!</p>
+            <div class="content-card max-w-2xl mx-auto">
+                <textarea id="expertQuestion" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4 text-gray-800" rows="4" placeholder="e.g., What are the key differences between a CPU and an MCU?"></textarea>
+                <button id="askExpertBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
+                    Ask the Expert ✨
+                </button>
+                <div id="expertLoading" class="text-center mt-4 text-gray-600 hidden">
+                    Thinking...
+                </div>
+                <div id="expertResponse" class="gemini-response hidden">
+                    </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const CHART_COLORS = {
+            accent1: '#4A90E2', // Muted Blue
+            accent2: '#E67E22', // Muted Orange
+            textDark: '#343A40',
+            textLight: '#F8F9FA',
+            gridLight: 'rgba(52, 58, 64, 0.1)',
+            backgroundCard: '#FFFFFF'
+        };
+
+        function wrapLabel(str, maxWidth = 16) {
+            if (typeof str !== 'string') return str;
+            if (str.length <= maxWidth) {
+                return str;
+            }
+            const words = str.split(' ');
+            let currentLine = '';
+            const lines = [];
+            for (const word of words) {
+                if ((currentLine + word).length > maxWidth && currentLine.length > 0) {
+                    lines.push(currentLine.trim());
+                    currentLine = '';
+                }
+                currentLine += word + ' ';
+            }
+            if (currentLine.trim().length > 0) {
+                 lines.push(currentLine.trim());
+            }
+            return lines.length > 0 ? lines : [str];
+        }
+        
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            if (!item || typeof item.dataIndex === 'undefined' || !item.chart.data.labels) return '';
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            }
+            return label || '';
+        };
+
+        const commonChartOptions = (isHorizontal = false, customXTicksCallback = null, customYTicksCallback = null) => ({
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: { color: CHART_COLORS.textDark, font: { size: 12 } }
+                },
+                tooltip: {
+                    callbacks: { title: tooltipTitleCallback },
+                    titleFont: { size: 14, weight: 'bold' }, bodyFont: { size: 12 },
+                    backgroundColor: 'rgba(52, 58, 64, 0.9)',
+                    titleColor: CHART_COLORS.textLight, bodyColor: CHART_COLORS.textLight,
+                    borderColor: CHART_COLORS.accent2, borderWidth: 1,
+                    padding: 10, cornerRadius: 4
+                }
+            },
+            scales: isHorizontal ? {
+                x: {
+                    ticks: { color: CHART_COLORS.textDark, font: { size: 11 }, callback: customXTicksCallback },
+                    grid: { color: CHART_COLORS.gridLight },
+                    title: { display: true, text: 'Value', color: CHART_COLORS.accent1, font: {size: 12, weight: 'bold'} }
+                },
+                y: {
+                    ticks: { color: CHART_COLORS.textDark, font: { size: 11 }, autoSkip: false, callback: customYTicksCallback },
+                    grid: { display: false }
+                }
+            } : {
+                x: {
+                    ticks: { color: CHART_COLORS.textDark, font: { size: 11 }, autoSkip: false, callback: customXTicksCallback },
+                    grid: { display: false }
+                },
+                y: {
+                    ticks: { color: CHART_COLORS.textDark, font: { size: 11 }, callback: customYTicksCallback },
+                    grid: { color: CHART_COLORS.gridLight },
+                    title: { display: true, text: 'Value', color: CHART_COLORS.accent1, font: {size: 12, weight: 'bold'} }
+                }
+            }
+        });
+
+        const intelAiTopsData = {
+            labels: [wrapLabel('Core Ultra (Meteor Lake) NPU'), wrapLabel('Core Ultra (Arrow Lake) NPU')],
+            datasets: [{
+                label: 'NPU TOPS',
+                data: [11, 13],
+                backgroundColor: [CHART_COLORS.accent1, CHART_COLORS.accent2],
+                borderColor: CHART_COLORS.backgroundCard,
+                borderWidth: 2,
+                borderRadius: 4,
+            }]
+        };
+        new Chart(document.getElementById('intelAiTopsChart'), {
+            type: 'bar',
+            data: intelAiTopsData,
+            options: { ...commonChartOptions(false), scales: {...commonChartOptions(false).scales, y: {...commonChartOptions(false).scales.y, title: {display: true, text: 'TOPS', color: CHART_COLORS.accent1}}} }
+        });
+
+        const amdBoostClockData = {
+            labels: [wrapLabel('Ryzen 9 9950X3D'), wrapLabel('Ryzen 9 9950X'), wrapLabel('Ryzen 7 9800X3D')],
+            datasets: [{
+                label: 'Max Boost Clock (GHz)',
+                data: [5.7, 5.7, 5.2],
+                backgroundColor: [CHART_COLORS.accent1, CHART_COLORS.accent1, CHART_COLORS.accent2],
+                borderColor: CHART_COLORS.backgroundCard,
+                borderWidth: 2,
+                borderRadius: 4,
+            }]
+        };
+        new Chart(document.getElementById('amdBoostClockChart'), {
+            type: 'bar',
+            data: amdBoostClockData,
+            options: { ...commonChartOptions(false), scales: {...commonChartOptions(false).scales, y: {...commonChartOptions(false).scales.y, title: {display: true, text: 'GHz', color: CHART_COLORS.accent1}}} }
+        });
+        
+        const nvidiaMemoryData = {
+            labels: [wrapLabel('NVIDIA H100'), wrapLabel('NVIDIA H200')],
+            datasets: [{
+                label: 'Memory Bandwidth (TB/s)',
+                data: [3.9, 4.8], // Using max H100 bandwidth for comparison
+                backgroundColor: [CHART_COLORS.accent1, CHART_COLORS.accent2],
+                borderColor: CHART_COLORS.backgroundCard,
+                borderWidth: 2,
+                borderRadius: 4,
+            }]
+        };
+        new Chart(document.getElementById('nvidiaMemoryBandwidthChart'), {
+            type: 'bar',
+            data: nvidiaMemoryData,
+            options: { ...commonChartOptions(false), scales: {...commonChartOptions(false).scales, y: {...commonChartOptions(false).scales.y, title: {display: true, text: 'TB/s', color: CHART_COLORS.accent1}}} }
+        });
+
+        const mcuStandbyData = {
+            labels: [wrapLabel('STM32L5 (nA)'), wrapLabel('Renesas RA4L1 (µA)'), wrapLabel('TI MSP430FR (nA)')].reverse(),
+            datasets: [{
+                label: 'Standby Current (Lower is Better)',
+                data: [30, 1.7 * 1000, 350].reverse(), // Converted RA4L1 to nA for scale, but will label axis appropriately
+                backgroundColor: [CHART_COLORS.accent1, CHART_COLORS.accent2, CHART_COLORS.accent1],
+                borderColor: CHART_COLORS.backgroundCard,
+                borderWidth: 2,
+                borderRadius: 4,
+            }]
+        };
+        new Chart(document.getElementById('mcuStandbyCurrentChart'), {
+            type: 'bar',
+            data: mcuStandbyData,
+            options: { ...commonChartOptions(true, null, (value, index, values) => {
+                // Custom Y-axis tick labels to show original units
+                const originalLabels = ['TI MSP430FR (350 nA)', 'Renesas RA4L1 (1.70 µA)', 'STM32L5 (30 nA)'];
+                return originalLabels[index] ? wrapLabel(originalLabels[index]) : '';
+            }), indexAxis: 'y', scales: {...commonChartOptions(true).scales, x: {...commonChartOptions(true).scales.x, title: {display: true, text: 'Equivalent Standby Current (nA scale)', color: CHART_COLORS.accent1}}} }
+        });
+
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const targetElement = document.querySelector(this.getAttribute('href'));
+                if (targetElement) {
+                    targetElement.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Gemini API Integration
+        const askExpertBtn = document.getElementById('askExpertBtn');
+        const expertQuestionInput = document.getElementById('expertQuestion');
+        const expertLoadingDiv = document.getElementById('expertLoading');
+        const expertResponseDiv = document.getElementById('expertResponse');
+
+        askExpertBtn.addEventListener('click', askGeminiExpert);
+
+        async function askGeminiExpert() {
+            const prompt = expertQuestionInput.value.trim();
+            if (!prompt) {
+                expertResponseDiv.textContent = 'Please enter a question.';
+                expertResponseDiv.classList.remove('hidden');
+                return;
+            }
+
+            expertLoadingDiv.classList.remove('hidden');
+            expertResponseDiv.classList.add('hidden');
+            expertResponseDiv.textContent = ''; // Clear previous response
+
+            try {
+                let chatHistory = [];
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = { contents: chatHistory };
+                const apiKey = ""; // If you want to use models other than gemini-2.0-flash or imagen-3.0-generate-002, provide an API key here. Otherwise, leave this as-is.
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const text = result.candidates[0].content.parts[0].text;
+                    expertResponseDiv.textContent = text;
+                    expertResponseDiv.classList.remove('hidden');
+                } else {
+                    expertResponseDiv.textContent = 'Sorry, I could not generate a response. Please try again.';
+                    expertResponseDiv.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error('Error calling Gemini API:', error);
+                expertResponseDiv.textContent = 'An error occurred while fetching the response. Please check your network connection or try again later.';
+                expertResponseDiv.classList.remove('hidden');
+            } finally {
+                expertLoadingDiv.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
